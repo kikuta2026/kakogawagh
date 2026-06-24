@@ -1,54 +1,469 @@
 <!DOCTYPE html>
-<html lang="ja">
+
+<html xmlns:th="http://thymeleaf.org" lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>加古川市 道路取り締まり情報ポータル</title>
-<link rel="stylesheet" href="css/style.css">
+<title>加古川市道路取り締まり情報ポータル</title>
+
 <style>
-  .top-logo { width: 130px; height: 130px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(3,169,244,0.25)); }
-  .logo-area { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.4rem; font-weight: bold; color: #444; margin-bottom: 5px; }
-  .main-title { font-size: 2.2rem; font-weight: bold; text-align: center; color: #333; margin-bottom: 25px; margin-top: 0; letter-spacing: 0.05em; line-height: 1.3; }
-  .desc { width: 100%; max-width: 460px; font-size: 1.1rem; line-height: 1.7; color: #555; text-align: center; margin-bottom: 40px; }
-  .btn-wrap { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 24px; }
-  @media (max-width: 576px) {
-    .top-logo { width: 100px; height: 100px; }
-    .main-title { font-size: 1.5rem; margin-bottom: 15px; }
-    .desc { font-size: 0.95rem; margin-bottom: 25px; }
-    .btn-wrap { gap: 16px; }
-    .btn-blue, .btn-orange { font-size: 1.15rem; padding: 1rem 0; }
-  }
+
+/* 背景 */
+body {
+    background-color: #F7FCFF !important;
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* 全体ラッパー */
+.wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    gap: 25px;
+    z-index: 10;
+    position: relative;
+}
+
+/* ロゴ */
+.top-logo-container {
+    text-align: center;
+    width: 100%;
+}
+
+.top-logo-img {
+    width: 130px !important;
+    height: 130px !important;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 14px rgba(3,169,244,0.25));
+}
+
+/* 外枠 */
+.outer-box {
+    position: relative;
+
+    width: 100%;
+    max-width: 680px;
+
+    background-color: #ffffff;
+
+    background-image:
+        linear-gradient(90deg, rgba(3,169,244,0.15) 50%, transparent 50%),
+        linear-gradient(rgba(3,169,244,0.15) 50%, transparent 50%);
+
+    background-size: 30px 30px;
+
+    border: 3px solid #81D4FA;
+    border-radius: 24px;
+
+    padding: 40px;
+
+    box-shadow: 0 12px 35px rgba(3,169,244,0.1);
+
+    box-sizing: border-box;
+}
+
+/* ネズミ */
+#patrol-mouse {
+    position: absolute;
+
+    width: 80px;
+    height: auto;
+
+    top: -60px;
+    left: 0;
+
+    z-index: 50;
+
+    pointer-events: none;
+
+    transition: top 0.4s ease;
+}
+
+/* カード */
+.portal-card {
+    background-color: #ffffff;
+    border: 1px solid #E1F5FE;
+    border-radius: 16px;
+    padding: 45px 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 5px;
+}
+
+.inner-title {
+    font-size: 2.2rem !important;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    margin-top: 0;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+}
+
+.description-box {
+    width: 100%;
+    max-width: 460px;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #555;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.button-container {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.custom-portal-btn {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-decoration: none !important;
+    border-radius: 16px !important;
+    padding: 1.2rem 0 !important;
+    font-size: 1.35rem !important;
+    font-weight: bold;
+    color: #fff !important;
+    text-align: center;
+    cursor: pointer;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+
+.portal-btn-icon {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.5;
+}
+
+.btn-blue {
+    background: linear-gradient(180deg,#4ad3ff 0%,#0099ff 50%,#0077dd 100%);
+    border-bottom: 5px solid #0044aa;
+}
+
+.btn-orange {
+    background: linear-gradient(180deg,#FF9F43 0%,#FF6B6B 50%,#EE5253 100%);
+    border-bottom: 5px solid #A71D1D;
+}
+
+.admin-link-container {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    justify-content: flex-end !important; /* PC・スマホ共通で常に右寄せ */
+    margin-top: 5px;
+    box-sizing: border-box;
+    padding-right: 10px;
+}
+
+/* 💡 ここが消えていたためただの文字リンクになっていました。丸ごと上書きします */
+.admin-link-container a {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    background-color: #ffffff !important; /* 背景を白に */
+    color: #6c757d !important;           /* 文字をグレーに */
+    border: 1px solid #dee2e6 !important;  /* 薄いグレーの枠線 */
+    padding: 8px 14px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold;
+    text-decoration: none !important;     /* 💡これで紫色の嫌な下線が完全に消えます */
+    border-radius: 8px !important;        /* 角丸 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important; /* 軽い影 */
+    transition: all 0.2s ease;
+}
+
+.admin-link-container a:hover {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border-color: #ced4da !important;
+}
+/* スマホ */
+@media (max-width: 576px) {
+
+.wrapper {
+    padding: 40px 20px;
+    gap: 15px;
+}
+
+.top-logo-img {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.outer-box {
+    padding: 40px;
+}
+
+.portal-card {
+    padding: 35px 20px;
+}
+
+.logo-area {
+    font-size: 1.2rem;
+}
+
+.inner-title {
+    font-size: 1.5rem !important;
+}
+
+.description-box {
+    font-size: 0.95rem;
+}
+
+.custom-portal-btn {
+    font-size: 1.15rem !important;
+}
+
+#patrol-mouse {
+    position: absolute;
+    
+    /* 💡 修正：サイズをさらに一回り大きくして存在感をアップしました */
+    width: 170px;       
+    height: auto;
+    
+    /* 普段の隠れ位置（頭や帽子だけがチラチラ覗く高さ） */
+    top: -10px;         
+    left: 0;
+    
+    /* 💡 修正：チェック枠（outer-box）の裏側、かつ上のロゴ（z-indexなし）の
+       さらに後ろを通り抜けるように設定しました */
+    z-index: -1;        
+    pointer-events: none;
+    
+    /* モグラ叩きジャンプの滑らかな動きの設定 */
+    transition: top 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* チラチラ見えながら走るトコトコ揺れ */
+    animation: police-walk 0.18s infinite alternate ease-in-out;
+    transform-origin: bottom center;
+}
+
+/* トコトコ走る前のめり揺れ */
+@keyframes police-walk {
+    0% { transform: translateY(0) rotate(4deg); }
+    100% { transform: translateY(-3px) rotate(8deg); }
+}
+
+/* 📱 スマホ対応ブレイクポイント内（@media内）のネズミ設定 */
+@media (max-width: 576px) {
+    /* (中略：他のロゴやカードの設定はそのまま) */
+
+    /* 💡 修正：スマホ・縮小画面でのサイズも一回り大きく調整しました */
+    #patrol-mouse {
+        width: 110px !important;
+        top: -8px; 
+    }
+}
+
+}
+
 </style>
 </head>
+
 <body>
+
 <div class="wrapper">
-  <div style="text-align:center;">
-    <img src="img/logo.png" class="top-logo" alt="ポータルロゴ">
-  </div>
-  <div class="outer-box">
-    <div class="inner-card" style="align-items:center; display:flex; flex-direction:column;">
-      <div class="logo-area">🚨 加古川市</div>
-      <h1 class="main-title">道路取り締まり共有ポータル</h1>
-      <div class="desc">
-        市内の安全運転向上と取り締まり情報の共有のためのウェブサイトです。以下から目的の画面を選択してください。
-      </div>
-      <div class="btn-wrap">
-        <a href="user/post.html" class="btn-blue">
-          <svg class="btn-icon" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-          <span>取り締まり情報を投稿する</span>
-        </a>
-        <a href="user/calendar.html" class="btn-orange">
-          <svg class="btn-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <span>最新情報を見る</span>
-        </a>
-      </div>
+
+    <div class="top-logo-container">
+        <!-- 💡重なり順を制御するため、上のロゴに position と z-index を直接指定しました。
+             これでネズミが飛び出してもロゴの後ろ（背面）を完全に通り抜けます -->
+        <img src="/4.png" th:src="@{/4.png}" class="top-logo-img" alt="ポータルロゴ" 
+             style="position: relative; z-index: 10;">
     </div>
-  </div>
-  <div class="admin-link-container">
-    <a href="#" onclick="alert('管理者ページはサーバー動作時のみ利用可能です。'); return false;">
-      <span>🛡️</span><span>管理者用ページ</span>
-    </a>
-  </div>
+
+    <!-- 💡外枠（outer-box）に z-index: 1 を指定し、中のネズミ(z-index: -1)が
+         チェック柄の「真後ろ」に完璧に回り込むように構造を完全ロックしました -->
+		 <div class="outer-box" style="z-index: 1;">
+
+		     <!-- 🐭 修正：初期の高さ（top）を「-35px」に変更して、最初から顔が見えるようにします -->
+		     <img id="patrol-mouse" src="/mouse.png" th:src="@{/mouse.png}" alt="パトロール中のネズミ"
+		          style="position: absolute; width: 170px; height: auto; top: -40px; left: 0; z-index: -1; pointer-events: none; transition: top 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); animation: police-walk 0.18s infinite alternate ease-in-out; transform-origin: bottom center;">
+
+        <div class="portal-card">
+
+            <div class="logo-area">
+                🚨 加古川市
+            </div>
+
+            <h1 class="inner-title">
+                道路取り締まり共有ポータル
+            </h1>
+
+            <div class="description-box">
+                市内の安全運転向上と取り締まり情報の共有のためのウェブサイトです。
+                以下から目的の画面を選択してください。
+            </div>
+
+            <div class="button-container">
+                <a th:href="@{/user/post}" class="custom-portal-btn btn-blue">
+                    <svg class="portal-btn-icon" viewBox="0 0 24 24">
+                        <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                    </svg>
+                    <span>取り締まり情報を投稿する</span>
+                </a>
+                <a th:href="@{/user/calendar}" class="custom-portal-btn btn-orange">
+                    <svg class="portal-btn-icon" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="M21 21l-4.3-4.3"/>
+                    </svg>
+                    <span>最新情報を見る</span>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 🛡️ 管理者用ページの枠 -->
+    <div class="admin-link-container">
+        <a th:href="@{/login}">
+            <span>🛡️</span>
+            <span>管理者用ページ</span>
+        </a>
+    </div>
+
 </div>
+
+<!-- 🐭 【スマホ・縮小画面用のサイズ制限】HTMLに直接スタイルを追加して最優先させます -->
+<style>
+@media (max-width: 576px) {
+    #patrol-mouse {
+        width: 110px !important; /* スマホ画面のときは110pxに調整 */
+        top: -30px !important;    /* スマホ画面の普段の隠れ位置 */
+    }
+}
+</style>
+
+<!-- 🐭 モグラ叩き（キョロキョロ停止 ＋ にょきにょき大ジャンプ）JavaScript -->
+<script th:inline="javascript">
+const mouse = document.getElementById('patrol-mouse');
+const box = document.querySelector('.outer-box');
+
+let positionX = 0;
+let direction = 1;
+
+let isWaiting = false;   
+let isNyoki = false;     
+let waitTimer = 0;       
+
+function patrol() {
+    if (!box || !mouse) return;
+    const limit = box.clientWidth - mouse.offsetWidth;
+
+    // 1. 立ち止まっている（キョロキョロ中）の処理
+    if (isWaiting) {
+        waitTimer++;
+        if (waitTimer === 25) {
+            mouse.style.transform = direction === 1 ? 'scaleX(-1)' : 'scaleX(1)';
+        }
+        if (waitTimer === 50) {
+            mouse.style.transform = direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+        }
+        if (waitTimer >= 75) {
+            isWaiting = false;
+            waitTimer = 0;
+            mouse.style.animationPlayState = 'running'; 
+        }
+        requestAnimationFrame(patrol);
+        return;
+    }
+
+    // 2. 通常の移動処理（飛び出している間は横移動を止めます）
+    if (!isNyoki) {
+        positionX += direction * 1.2; 
+    }
+
+    if (positionX >= limit) {
+        direction = -1;
+        mouse.style.transform = 'scaleX(-1)';
+    }
+    if (positionX <= 0) {
+        direction = 1;
+        mouse.style.transform = 'scaleX(1)';
+    }
+
+    mouse.style.left = positionX + 'px';
+
+    // ランダムでキョロキョロ停止
+    if (!isNyoki && positionX > 40 && positionX < (limit - 40)) {
+        if (Math.random() < 0.004) { 
+            isWaiting = true;
+            mouse.style.animationPlayState = 'paused'; 
+        }
+    }
+
+    requestAnimationFrame(patrol);
+}
+
+patrol();
+
+/* 🐭 【完成版】5秒ごとに判定：モグラ叩き大ジャンプ（前面・背面・高さを完全一括管理） */
+setInterval(() => {
+    if (!isWaiting && !isNyoki && Math.random() < 0.4) {
+        isNyoki = true;
+        mouse.style.animationPlayState = 'paused';
+        
+        // 💡 修正：ジャンプしたときは、ピンクのロゴ（z-index: 10）よりも手前に出すために「z-index: 20」に引き上げます
+        mouse.style.zIndex = "20";
+
+        // 画面サイズに合わせて飛び出す高さを決定
+        if (window.innerWidth <= 576) {
+            mouse.style.setProperty('top', '-95px', 'important');
+        } else {
+            mouse.style.setProperty('top', '-135px', 'important');
+        }
+
+        // 1.0秒間、前面で全身を見せてから引っ込めます
+        setTimeout(() => {
+            if (window.innerWidth <= 576) {
+                // 📱 縮小画面時：お顔が見える新しい着地位置（-22px）へ戻します
+                mouse.style.setProperty('top', '-22px', 'important'); 
+            } else {
+                // 💻 全画面時：お顔がしっかり見える新しい着地位置（-35px）へ戻します
+                mouse.style.setProperty('top', '-35px', 'important'); 
+            }
+
+            // 引っ込み終わるタイミングで、元のチェック枠の背面（z-index: -1）に自然に戻します
+            setTimeout(() => {
+                mouse.style.zIndex = "-1";
+                isNyoki = false;
+                mouse.style.animationPlayState = 'running';
+            }, 300); 
+        }, 1000); 
+    }
+}, 5000);
+</script>
+
 </body>
 </html>
